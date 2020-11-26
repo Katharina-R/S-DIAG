@@ -17,7 +17,7 @@ vector<int> new_id; // id for compression
 
 // recursively finds strongly connected components
 // tarjan's algorithm
-void tarjans_SCC_rec(int cur, vector<vector<int>>& graph){
+void tarjans_SCC_rec(int cur, const vector<vector<int>>& graph){
 
 	// put vertex on stack
 	t_stack.push(cur);
@@ -56,7 +56,7 @@ void tarjans_SCC_rec(int cur, vector<vector<int>>& graph){
 }
 
 // finds strongly connected components (SCC)
-void tarjans_SCC(vector<vector<int>>& graph){
+void tarjans_SCC(const vector<vector<int>>& graph){
 
 	// init tarjan data structures
 	for(int i = 0; i < graph.size(); i++){
