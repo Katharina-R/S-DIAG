@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void read_input(vector<vector<int>>& graph, vector<int> alarms){
+void read_input(vector<vector<int>>& graph, vector<int>& alarms){
 
 	//read the number of vertices & edges
     int num_vertices, num_edges;
@@ -31,12 +31,13 @@ void read_input(vector<vector<int>>& graph, vector<int> alarms){
     printf("Enter the %d alarm ids\n", num_alarms);
     for(int i = 1; i <= num_alarms; i++){
     	scanf("%d", &a);
+        printf("read alarm: %d", a);
     	alarms.push_back(a);
     }
     sort(alarms.begin(), alarms.end());
 }
 
-void print_graph(const vector<vector<int>> graph){
+void print_graph(const vector<vector<int>>& graph){
     printf("number of vertices: %ld\n", graph.size() - 1);
     printf("graph: \n");
     for(int u = 1; u < graph.size(); u++){
@@ -47,10 +48,10 @@ void print_graph(const vector<vector<int>> graph){
     }
 }
 
-void print_alarms(const vector<int> alarms){
+void print_alarms(const vector<int>& alarms){
 	printf("alarms: ");
-	for(int i : alarms){
-		printf("%d, ", i);
+	for(int a : alarms){
+		printf("%d, ", a);
 	}
 	printf("\n");
 }
