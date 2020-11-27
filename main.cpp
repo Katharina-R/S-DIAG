@@ -1,6 +1,7 @@
 #include <cstdio>
 
 #include "io.cpp"
+#include "unused_nodes.cpp"
 #include "scc.cpp"
 
 using namespace std;
@@ -14,14 +15,13 @@ int main(){
 	read_input(graph, alarms);
 
     // compress strongly connected components
-    print_graph(graph);
     tarjans_SCC(graph);
     compress_SCC(graph);
-    print_graph(graph);
-    print_alarms(alarms);
 
     // remove all nodes which are reachable from an alarm
-    // TODO
+    remove_unused_nodes(graph, alarms);
+    print_graph(graph);
+	print_alarms(alarms);
 
     // remove components without alarms
     return 0;
