@@ -78,12 +78,20 @@ void tarjans_SCC(const vector<vector<int>>& graph){
 	}
 }
 
+// updates the id of the alarm
+void update_alarms(int id_old, int id_new, unordered_set<int>& alarms){
+	if(alarms.contains(id_old)){
+		alarms.erase(id_old);
+		alarms.insert(id_new);
+	}
+}
+
 // O(V + E*log(E))
 // compresses strongly connected components & updates edges
 // keeps the id's of the vertexes, e.g.:
 // {1} -> {1}
 // SCC {1, 2, 3} -> {1} or {2} or {3}
-void compress_SCC(vector<vector<int>>& graph){
+void compress_SCC(vector<vector<int>>& graph, unordered_set<int>& alarms_r, unordered_set<int>& alarms_s){
 
 	vector<vector<int>> graph_c;
 	graph_c.resize(graph.size());
@@ -93,6 +101,8 @@ void compress_SCC(vector<vector<int>>& graph){
 
 		// compress
 		if(u != new_id[u]){
+			update_alarms(u, new_id[u], alarms_r);
+			update_alarms(u, new_id[u], alarms_s);
 			printf("Compressing %d into %d\n", u, new_id[u]);
 		} 
 		for(int v : graph[u]){

@@ -18,7 +18,7 @@ void mark_reachable_from_ringing_alarm_rec(int cur, const vector<vector<int>>& g
 
 // O(V + E)
 // input: graph, ringing alarms
-void mark_reachable_from_ringing_alarm(const vector<vector<int>>& graph, const vector<int>& alarms){
+void mark_reachable_from_ringing_alarm(const vector<vector<int>>& graph, const unordered_set<int>& alarms){
 
 	// for each ringing alarm: mark children as removable
 	for(int a : alarms){
@@ -28,7 +28,7 @@ void mark_reachable_from_ringing_alarm(const vector<vector<int>>& graph, const v
 	}
 }
 
-void mark_cannot_reach_ringing_alarm_rec(int cur, const vector<vector<int>>& graph, const vector<int>& alarms){
+void mark_cannot_reach_ringing_alarm_rec(int cur, const vector<vector<int>>& graph, const unordered_set<int>& alarms){
 
 	// removed / seen this vertex before
 	if(to_remove[cur] || seen[cur]) return;
@@ -51,7 +51,7 @@ void mark_cannot_reach_ringing_alarm_rec(int cur, const vector<vector<int>>& gra
 }
 
 // input: graph, ringing alarms
-void mark_cannot_reach_ringing_alarm(const vector<vector<int>>& graph, const vector<int>& alarms){
+void mark_cannot_reach_ringing_alarm(const vector<vector<int>>& graph, const unordered_set<int>& alarms){
 	
 	// for each vertex: try to reach a ringing alarm
 	for(int i = 1; i < graph.size(); i++){
@@ -60,29 +60,33 @@ void mark_cannot_reach_ringing_alarm(const vector<vector<int>>& graph, const vec
 }
 
 // input: graph, silent alarms
-void mark_can_reach_silent_alarm(const vector<vector<int>>& graph, const vector<int>& alarms){
+void mark_can_reach_silent_alarm(const vector<vector<int>>& graph, const unordered_set<int>& alarms){
 	//TODO
 }
 
-void compress(vector<vector<int>>& graph){
+void compress(vector<vector<int>>& graph, unordered_set<int>& alarms_r, unordered_set<int>& alarms_s){
 
 	vector<vector<int>> graph_c;
 	graph_c.resize(graph.size());
 
 	for(int u = 1; u < graph.size(); u++){
-		if(to_remove[u]) continue;
-
-		for(int v : graph[u]){
-			if(!to_remove[v]){
-				graph_c[u].push_back(v);
-			}
+		if(to_remove[u]) {
+			alarms_r.erase(u);
+			alarms_s.erase(u);
+		}
+		else {
+			for(int v : graph[u]){
+				if(!to_remove[v]){
+					graph_c[u].push_back(v);
+				}
+			}	
 		}
 	}
 
 	graph = graph_c;
 }
 
-void reduce_graph(vector<vector<int>>& graph, vector<int>& alarms_r, vector<int>& alarms_s){
+void unused_nodes_reduction(vector<vector<int>>& graph, unordered_set<int>& alarms_r, unordered_set<int>& alarms_s){
 
 	// init data structures
 	for(int i = 1; i < graph.size(); i++){
@@ -102,5 +106,5 @@ void reduce_graph(vector<vector<int>>& graph, vector<int>& alarms_r, vector<int>
 	mark_can_reach_silent_alarm(graph, alarms_s);
 
 	// remove marked vertexes & edges to marked vertexes
-	compress(graph);
+	compress(graph, alarms_r, alarms_s);
 }

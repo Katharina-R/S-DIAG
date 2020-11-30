@@ -1,11 +1,12 @@
 #include <algorithm>
 #include <cstdio>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
 
 // O(A)
-void read_alarms(string alarm_type, vector<int>& alarms){
+void read_alarms(string alarm_type, unordered_set<int>& alarms){
     // read the number of ringing alarms
     int num_alarms, a;
     printf("Enter the number of %s alarms:\n", alarm_type.c_str());
@@ -15,12 +16,12 @@ void read_alarms(string alarm_type, vector<int>& alarms){
     printf("Enter the ids of the %d %s alarms\n", num_alarms, alarm_type.c_str());
     for(int i = 1; i <= num_alarms; i++){
         scanf("%d", &a);
-        alarms.push_back(a);
+        alarms.insert(a);
     }
 }
 
 // O(V + E + A)
-void read_input(vector<vector<int>>& graph, vector<int>& alarms_r, vector<int>& alarms_s){
+void read_input(vector<vector<int>>& graph, unordered_set<int>& alarms_r, unordered_set<int>& alarms_s){
 
 	//read the number of vertices & edges
     int num_vertices, num_edges;
@@ -59,7 +60,7 @@ void print_graph(const vector<vector<int>>& graph){
 }
 
 // O(A)
-void print_alarms(string alarm_type, const vector<int>& alarms){
+void print_alarms(string alarm_type, const unordered_set<int>& alarms){
 	printf("%s alarms: ", alarm_type.c_str());
 	for(int a : alarms){
 		printf("%d, ", a);
@@ -68,11 +69,11 @@ void print_alarms(string alarm_type, const vector<int>& alarms){
 }
 
 // O(A)
-void print_ringing_alarms(const vector<int>& alarms){
+void print_ringing_alarms(const unordered_set<int>& alarms){
     print_alarms("ringing", alarms);
 }
 
 // O(A)
-void print_silent_alarms(const vector<int>& alarms){
+void print_silent_alarms(const unordered_set<int>& alarms){
     print_alarms("silent", alarms);
 }
