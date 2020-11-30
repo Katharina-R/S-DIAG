@@ -3,58 +3,63 @@
 vector<bool> seen;
 vector<int> to_remove;
 
-void mark_reachable_vertexes_to_remove(int cur, const vector<vector<int>>& graph){
+void mark_reachable_from_ringing_alarm_rec(int cur, const vector<vector<int>>& graph){
 
-	// mark current vertex as seen
+	// mark current vertex as seen & removable
 	if(seen[cur]) return;
 	seen[cur] = true;
+	to_remove[cur] = true;
 
 	// mark children as to_remove
 	for(int v : graph[cur]){
-		to_remove[v] = true;
-		mark_reachable_vertexes_to_remove(v, graph);
+		mark_reachable_from_ringing_alarm_rec(v, graph);
 	}
 }
 
+// O(V + E)
+// input: graph, ringing alarms
 void mark_reachable_from_ringing_alarm(const vector<vector<int>>& graph, const vector<int>& alarms){
 
+	// for each ringing alarm: mark children as removable
 	for(int a : alarms){
-		mark_reachable_vertexes_to_remove(a, graph);
+		for(int v : graph[a]){
+			mark_reachable_from_ringing_alarm_rec(v, graph);
+		}
 	}
 }
 
-bool find_alarm(int cur, const vector<vector<int>>& graph, const vector<int>& alarms){
+void mark_cannot_reach_ringing_alarm_rec(int cur, const vector<vector<int>>& graph, const vector<int>& alarms){
 
-	// seen this vertex before
-	if(seen[cur]) return !to_remove[cur];
+	// removed / seen this vertex before
+	if(to_remove[cur] || seen[cur]) return;
 	seen[cur] = true;
 
-	// cur has alarm => there will not be any interesting children
-	// see: mark_reachable_from_ringing_alarm
+	// cur has a ringing alarm (=> children are not interesting)
 	if(find(alarms.begin(), alarms.end(), cur) != alarms.end()){
-		return true;
-	}
+		// to_remove[cur] stays false
+		return;
+	}	
 
-	// test children
-	bool found_alarm = false;
+	// assume cur can be removed
+	to_remove[cur] = true;
+
+	// test if a child disagrees with that
 	for(int v : graph[cur]){
-		found_alarm |= find_alarm(v, graph, alarms);
+		mark_cannot_reach_ringing_alarm_rec(v, graph, alarms);
+		to_remove[cur] &= to_remove[v];
 	}
-
-	// no child has an alarm
-	if(!found_alarm){
-		to_remove[cur] = true;
-	}
-
-	return found_alarm;
 }
 
+// input: graph, ringing alarms
 void mark_cannot_reach_ringing_alarm(const vector<vector<int>>& graph, const vector<int>& alarms){
+	
+	// for each vertex: try to reach a ringing alarm
 	for(int i = 1; i < graph.size(); i++){
-		find_alarm(i, graph, alarms);
+		mark_cannot_reach_ringing_alarm_rec(i, graph, alarms);
 	}
 }
 
+// input: graph, silent alarms
 void mark_can_reach_silent_alarm(const vector<vector<int>>& graph, const vector<int>& alarms){
 	//TODO
 }
