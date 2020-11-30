@@ -1,5 +1,6 @@
 // tarjan has been tested on hackerearth:
 // https://www.hackerearth.com/practice/algorithms/graphs/strongly-connected-components/practice-problems/algorithm/a-walk-to-remember-qualifier2/
+#pragma once
 
 #include <algorithm>
 #include <stack>
