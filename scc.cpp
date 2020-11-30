@@ -55,6 +55,7 @@ void tarjans_SCC_rec(int cur, const vector<vector<int>>& graph){
 	}
 }
 
+// O(V + E)
 // finds strongly connected components (SCC)
 void tarjans_SCC(const vector<vector<int>>& graph){
 
@@ -77,6 +78,7 @@ void tarjans_SCC(const vector<vector<int>>& graph){
 	}
 }
 
+// O(V + E*log(E))
 // compresses strongly connected components & updates edges
 // keeps the id's of the vertexes, e.g.:
 // {1} -> {1}

@@ -7,22 +7,28 @@
 using namespace std;
 
 vector<vector<int>> graph;
-vector<int> alarms;
+vector<int> alarms_r; // ringing alarms
+vector<int> alarms_s; // silent alarms
 
 int main(){
 
 	// read in the graph & the alarms
-	read_input(graph, alarms);
+	read_input(graph, alarms_r, alarms_s);
 
     // compress strongly connected components
     tarjans_SCC(graph);
     compress_SCC(graph);
 
-    // remove all nodes which are reachable from an alarm
-    remove_unused_nodes(graph, alarms);
+	// remove all components which:
+		// - can be reached from a ringing alarm
+		// - can NOT reach a ringing alarm
+		// - can reach a silent alarm
+    reduce_graph(graph, alarms_r, alarms_s);
     print_graph(graph);
-	print_alarms(alarms);
+	print_ringing_alarms(alarms_r);
+	print_silent_alarms(alarms_s);
 
-    // remove components without alarms
+    // create reverse graph
+    // TODO
     return 0;
 }

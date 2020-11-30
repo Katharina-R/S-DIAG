@@ -16,7 +16,7 @@ void mark_reachable_vertexes_to_remove(int cur, const vector<vector<int>>& graph
 	}
 }
 
-void mark_reachable_from_alarm(const vector<vector<int>>& graph, const vector<int>& alarms){
+void mark_reachable_from_ringing_alarm(const vector<vector<int>>& graph, const vector<int>& alarms){
 
 	for(int a : alarms){
 		mark_reachable_vertexes_to_remove(a, graph);
@@ -30,7 +30,7 @@ bool find_alarm(int cur, const vector<vector<int>>& graph, const vector<int>& al
 	seen[cur] = true;
 
 	// cur has alarm => there will not be any interesting children
-	// see: mark_reachable_from_alarm
+	// see: mark_reachable_from_ringing_alarm
 	if(find(alarms.begin(), alarms.end(), cur) != alarms.end()){
 		return true;
 	}
@@ -49,10 +49,14 @@ bool find_alarm(int cur, const vector<vector<int>>& graph, const vector<int>& al
 	return found_alarm;
 }
 
-void mark_cannot_reach_alarm(const vector<vector<int>>& graph, const vector<int>& alarms){
+void mark_cannot_reach_ringing_alarm(const vector<vector<int>>& graph, const vector<int>& alarms){
 	for(int i = 1; i < graph.size(); i++){
 		find_alarm(i, graph, alarms);
 	}
+}
+
+void mark_can_reach_silent_alarm(const vector<vector<int>>& graph, const vector<int>& alarms){
+	//TODO
 }
 
 void compress(vector<vector<int>>& graph){
@@ -73,20 +77,24 @@ void compress(vector<vector<int>>& graph){
 	graph = graph_c;
 }
 
-void remove_unused_nodes(vector<vector<int>>& graph, vector<int>& alarms){
+void reduce_graph(vector<vector<int>>& graph, vector<int>& alarms_r, vector<int>& alarms_s){
 
-	// init
+	// init data structures
 	for(int i = 1; i < graph.size(); i++){
 		seen.push_back(false);
 		to_remove.push_back(false);
 	}
 
-	// mark vertexes which are reachable from an alarm
-	mark_reachable_from_alarm(graph, alarms);
+	// mark vertexes which are reachable from a ringing alarm
+	mark_reachable_from_ringing_alarm(graph, alarms_r);
 
-	// mark vertexes which don't reach an alarm
+	// mark vertexes which don't reach a ringing alarm
 	seen.assign(seen.size(), false);
-	mark_cannot_reach_alarm(graph, alarms);
+	mark_cannot_reach_ringing_alarm(graph, alarms_r);
+
+	// mark vertexes which reach a silent alarm
+	seen.assign(seen.size(), false);
+	mark_can_reach_silent_alarm(graph, alarms_s);
 
 	// remove marked vertexes & edges to marked vertexes
 	compress(graph);
