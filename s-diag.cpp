@@ -5,105 +5,127 @@
 
 #include "io.cpp"
 
-void create_reverse_graph(const vector<vector<int>>& graph, vector<vector<int>>& graph_rev){
+void remove_successor_alarm_rec(int cur, const vector<vector<int>>& graph, unordered_set<int>& alarms_r, vector<bool>& seen, vector<int> to_erase){
+
+	if(seen[cur]) return;
+	seen[cur] = true;
+
+	// alarm can be reached from caller 
+	if(alarms_r.contains(cur)){
+		to_erase.push_back(cur);
+	}
+
+	// check children
+	for(int v : graph[cur]){
+		remove_successor_alarm_rec(v, graph, alarms_r, seen, to_erase);
+	}
+}
+
+void remove_successor_alarm(const vector<vector<int>>& graph, unordered_set<int>& alarms_r){
+
+	vector<bool> seen(graph.size(), false);
+	vector<int> to_erase;
+
+	// try to reach an alarm from an alarm
+	for(int a : alarms_r){
+		for(int v : graph[a]){
+			remove_successor_alarm_rec(v, graph, alarms_r, seen, to_erase);
+		}
+	}
+
+	// remove ringing alarms that can be reached from another ringing alarm
+	for(int a : to_erase){
+		alarms_r.erase(a);
+	}
+}
+
+vector<vector<int>> transpose(const vector<vector<int>>& graph){
 
 	// reset reverse graph
-	graph_rev.clear();
-	graph_rev.resize(graph.size());
+	vector<vector<int>> graph_t(graph.size());
 
 	// fill reverse graph
 	for(int u = 1; u < graph.size(); u++){
 		for(int v : graph[u]){
-			graph_rev[v].push_back(u);
+			graph_t[v].push_back(u);
 		}
 	}
+
+	return graph_t;
 }
 
-void remove_predecessors_silent_alarm_rec(int cur, vector<vector<int>>& graph, const vector<vector<int>>& pred, vector<bool>& seen){
+// travers via graph_t, remove edges in graph
+void remove_predecessors_silent_alarm_rec(int cur, vector<vector<int>>& graph, const vector<vector<int>>& graph_t, vector<bool>& seen){
+
+	if(seen[cur]) return;
+	seen[cur] = true;
 
 	// delete predecessors 
-	for(int v : pred[cur]){
-		remove_predecessors_silent_alarm_rec(v, graph, pred, seen);
+	for(int v : graph_t[cur]){
+		remove_predecessors_silent_alarm_rec(v, graph, graph_t, seen);
 	}
 
-	// delete self: remove all outgoing edges of cur
-	// => the reverse graph will not have any incoming edges
-	graph[cur] = {};
+	// remove all outgoing edges of cur (in the initial graph)
+	// cur's predecessors have already removed the incoming edges 
+	graph[cur].clear();
 }
 
-void remove_predecessors_silent_alarm(vector<vector<int>>& graph, const vector<vector<int>>& pred, const unordered_set<int>& alarms_s){
+void remove_predecessors_silent_alarm(vector<vector<int>>& graph, const vector<vector<int>>& graph_t, const unordered_set<int>& alarms_s){
 
 	// init seen
-	vector<bool> seen;
-	seen.resize(graph.size());
-	seen.assign(0, graph.size());
+	vector<bool> seen(graph.size(), false);
 
 	// for each silent alarm: delete children & self
 	for(int s : alarms_s){
-		remove_predecessors_silent_alarm_rec(s, graph, pred, seen);
+		remove_predecessors_silent_alarm_rec(s, graph, graph_t, seen);
 	}
 }
 
-void find_num_pred_rec(int cur, const vector<vector<int>>& pred, vector<int>& num_pred){
-
-	// already seen this node
-	if(num_pred[cur] != 0){
-		return;
-	}
+// returns: the number of predecessors
+int get_num_pred(int cur, const vector<vector<int>>& graph_t){
 
 	// count all predecessors
-	num_pred[cur] = 1;
-	for(int p : pred[cur]){
-		find_num_pred_rec(p, pred, num_pred);
-		num_pred[cur] += num_pred[p];
+	int num_pred = 1;
+	for(int p : graph_t[cur]){
+		num_pred += get_num_pred(p, graph_t);
 	}
+	return num_pred;
 }
 
-void find_set_S(const vector<vector<int>>& pred, const unordered_set<int>& alarms_r){
+void find_set_S(const vector<vector<int>>& graph_t, const unordered_set<int>& alarms_r){
 
-	// store the number of predecessors for each (visited) vertex
-	vector<int> num_pred;
-	num_pred.resize(pred.size());
-	num_pred.assign(0, pred.size());
+	int min_pred_alarm = 0;
+	int min_num_pred = graph_t.size();
 
-	// find the number of predecessors for each ringing alarm
+	// find the ringing alarm with the minimum number of predecessors
+	int num_pred;
 	for(int a : alarms_r){
-		find_num_pred_rec(a, pred, num_pred);
-	}
-
-	// find the ringing alarms with the smallest set of predecessors
-	vector<int> min_pred_alarms;
-	min_pred_alarms.push_back(*alarms_r.begin());
-	for(int a : alarms_r){
-		// found better set
-		if(num_pred[a] < min_pred_alarms[0]){
-			min_pred_alarms = {};
-			min_pred_alarms.push_back(a);
-		}
-		// found equally good set
-		if(num_pred[a] == min_pred_alarms[0]){
-			min_pred_alarms.push_back(a);
+		num_pred = get_num_pred(a, graph_t);
+		if(num_pred < min_num_pred){
+			min_pred_alarm = a;
+			min_num_pred = num_pred;
 		}
 	}
 
 	// print result
-	print_number_of_result(min_pred_alarms);
-	// the sets are mutually exclusive
-	for(int a : min_pred_alarms){
-		print_predecessors(a, pred);
-	}
+	print_predecessors(min_pred_alarm, graph_t);
 }
 
-void s_diag(vector<vector<int>>& graph, const unordered_set<int>& alarms_r, const unordered_set<int>& alarms_s){
+void s_diag(vector<vector<int>>& graph, unordered_set<int>& alarms_r, const unordered_set<int>& alarms_s){
 
-	// create reverse graph (predecessors)
-	vector<vector<int>> pred;
-	create_reverse_graph(graph, pred);
+	// remove all alarms that have a ringing alarm as predecessor
+	remove_successor_alarm(graph, alarms_r);
+
+	// create transposed graph (predecessors)
+	vector<vector<int>> graph_t = transpose(graph);
 
 	// remove all predecessors of silent alarms
-	remove_predecessors_silent_alarm(graph, pred, alarms_s);
-	create_reverse_graph(graph, pred);
+	// traverses 'graph_t', updates 'graph'
+	remove_predecessors_silent_alarm(graph, graph_t, alarms_s);
 
-	// find minimum set S s.t. S contains at least one failure source
-	find_set_S(pred, alarms_r);
+	// update transposed graph
+	graph_t = transpose(graph);
+
+	// find minimum set S such that S contains at least one failure source
+	find_set_S(graph_t, alarms_r);
 }

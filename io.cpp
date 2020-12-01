@@ -81,9 +81,15 @@ void print_number_of_result(const vector<int>& result){
 }
 
 // O(V + E)
-void print_predecessors(int cur, const vector<vector<int>>& pred){
+void print_predecessors_rec(int cur, const vector<vector<int>>& graph_t){
     printf("%d ", cur);
-    for(int p : pred[cur]){
-        print_predecessors(p, pred);
+    for(int p : graph_t[cur]){
+        print_predecessors_rec(p, graph_t);
     }
+}
+
+// O(V + E)
+void print_predecessors(int cur, const vector<vector<int>>& graph_t){
+    printf("Minimum set with at least one fault cause: ");
+    print_predecessors_rec(cur, graph_t);
 }

@@ -8,32 +8,30 @@
 
 using namespace std;
 
-// tarjan's data structures
-vector<int> id; // -1: unseen
-vector<int> low; // lowest id reachable
-int next_id; // next available id
-stack<int> t_stack;
-vector<bool> on_stack;
-vector<int> new_id; // id for compression
-
 // recursively finds strongly connected components
 // tarjan's algorithm
-void tarjans_SCC_rec(int cur, const vector<vector<int>>& graph){
+void tarjans_SCC_rec(
+	int cur, 
+	const vector<vector<int>>& graph, 
+	stack<int>& stack_t, 
+	vector<bool>& on_stack, 
+	vector<int>& discovery, 
+	int& next_id,
+	vector<int>& id_new, 
+	vector<int>& low){
 
 	// put vertex on stack
-	t_stack.push(cur);
+	stack_t.push(cur);
 	on_stack[cur] = true;
 
 	// assign next available id
-	id[cur] = next_id; 
-	low[cur] = next_id; 
-	next_id++; 
+	discovery[cur] = low[cur] = next_id++; 
 
 	// visit neighbours & update low value
 	for(int v : graph[cur]){
 		// if v is unvisited -> visit
-		if(id[v] == -1){
-			tarjans_SCC_rec(v, graph);
+		if(discovery[v] == 0){
+			tarjans_SCC_rec(v, graph, stack_t, on_stack, discovery, next_id, id_new, low);
 		}
 		// if v is on stack -> use v to update low
 		if(on_stack[v]){
@@ -42,41 +40,42 @@ void tarjans_SCC_rec(int cur, const vector<vector<int>>& graph){
 	}
 
 	// cur can reach itself => found SCC
-	if(id[cur] == low[cur]){
-		while(t_stack.size() > 0){
+	if(discovery[cur] == low[cur]){
+		int v;
+		do {
 			// remove v from stack
-			int v = t_stack.top();
-			t_stack.pop();
+			v = stack_t.top();
+			stack_t.pop();
 			on_stack[v] = false;
+
 			// all vertexes in the SCC have the same low value
-			low[v] = low[cur];
-			new_id[v] = cur;
-			if(v == cur) break;
-		}
+			id_new[v] = cur;
+		} while(v != cur);
 	}
 }
 
 // O(V + E)
 // finds strongly connected components (SCC)
-void tarjans_SCC(const vector<vector<int>>& graph){
+vector<int> tarjans_SCC(const vector<vector<int>>& graph){
 
 	// init tarjan data structures
-	for(int i = 0; i < graph.size(); i++){
-		on_stack.push_back(false);
-		id.push_back(-1);
-		low.push_back(0);
-		new_id.push_back(i);
-	}
+	stack<int> stack_t;
+	vector<bool> on_stack(graph.size(), false);
 
-	next_id = 1;
+	int next_id = 1;
+	vector<int> discovery(graph.size(), 0); // 0: unseen
+	vector<int> id_new(graph.size()); // vertex id after compression
+	vector<int> low(graph.size(), 0); // lowest id reachable
 
-	// for each vertex (they can belong to unconnected components)
-	for(int i = 1; i < graph.size(); i++){
-		// this vertex has been seen already
-		if(id[i] == -1) {
-			tarjans_SCC_rec(i, graph);
+	// running dfs for each vertex (there might be several roots)
+	for(int u = 1; u < graph.size(); u++){
+		// unseen vertex
+		if(discovery[u] == 0) {
+			tarjans_SCC_rec(u, graph, stack_t, on_stack, discovery, next_id, id_new, low);
 		}
 	}
+
+	return id_new;
 }
 
 // updates the id of the alarm
@@ -88,33 +87,33 @@ void update_alarms(int id_old, int id_new, unordered_set<int>& alarms){
 }
 
 // O(V + E*log(E))
-// compresses strongly connected components & updates edges
+// compresses strongly connected components, updates edges & alarms
 // keeps the id's of the vertexes, e.g.:
 // {1} -> {1}
 // SCC {1, 2, 3} -> {1} or {2} or {3}
-void compress_SCC(vector<vector<int>>& graph, unordered_set<int>& alarms_r, unordered_set<int>& alarms_s){
+void compress_SCC(vector<vector<int>>& graph, vector<int>& id_new, unordered_set<int>& alarms_r, unordered_set<int>& alarms_s){
 
-	vector<vector<int>> graph_c;
-	graph_c.resize(graph.size());
+	// compressed graph
+	vector<vector<int>> graph_c(graph.size());
 
-	// compress vertex id's (id -> id_comp)
+	// compress vertex id's (id -> id_new)
 	for(int u = 1; u < graph.size(); u++){
 
-		// compress
-		if(u != new_id[u]){
-			update_alarms(u, new_id[u], alarms_r);
-			update_alarms(u, new_id[u], alarms_s);
-			printf("Compressing %d into %d\n", u, new_id[u]);
+		// change id of current vertex
+		if(u != id_new[u]){
+			update_alarms(u, id_new[u], alarms_r);
+			update_alarms(u, id_new[u], alarms_s);
+			printf("Compressing %d into %d\n", u, id_new[u]);
 		} 
 		for(int v : graph[u]){
 			// no self-loops
-			if(new_id[u] != new_id[v]){
-				graph_c[new_id[u]].push_back(new_id[v]);
+			if(id_new[u] != id_new[v]){
+				graph_c[id_new[u]].push_back(id_new[v]);
 			}
 		}
 	}
 
-	// remove duplicates
+	// remove duplicate edges
 	for(int i = 1; i < graph.size(); i++){
 		sort(graph_c[i].begin(), graph_c[i].end());
 		auto it_end = unique(graph_c[i].begin(), graph_c[i].end());
