@@ -82,12 +82,15 @@ void remove_predecessors_silent_alarm(vector<vector<int>>& graph, const vector<v
 }
 
 // returns: the number of predecessors
-int get_num_pred(int cur, const vector<vector<int>>& graph_t){
+int get_num_pred(int cur, const vector<vector<int>>& graph_t, vector<bool>& seen){
+
+	if(seen[cur]) return 0;
+	seen[cur] = true;
 
 	// count all predecessors
 	int num_pred = 1;
 	for(int p : graph_t[cur]){
-		num_pred += get_num_pred(p, graph_t);
+		num_pred += get_num_pred(p, graph_t, seen);
 	}
 	return num_pred;
 }
@@ -100,7 +103,11 @@ void find_set_S(const vector<vector<int>>& graph_t, const unordered_set<int>& al
 	// find the ringing alarm with the minimum number of predecessors
 	int num_pred;
 	for(int a : alarms_r){
-		num_pred = get_num_pred(a, graph_t);
+		// count each predecessor once
+		vector<bool> seen(graph_t.size(), false);
+
+		num_pred = get_num_pred(a, graph_t, seen);
+		printf("num_pred of %d: %d\n", a, num_pred);
 		if(num_pred < min_num_pred){
 			min_pred_alarm = a;
 			min_num_pred = num_pred;

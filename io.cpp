@@ -86,16 +86,24 @@ void print_number_of_result(const vector<int>& result){
 }
 
 // O(V + E)
-void print_predecessors_rec(int cur, const vector<vector<int>>& graph_t){
+void print_predecessors_rec(int cur, const vector<vector<int>>& graph_t, vector<bool>& seen){
+    
+    if(seen[cur]) return;
+    seen[cur] = true;
+
     printf("%d ", cur);
     for(int p : graph_t[cur]){
-        print_predecessors_rec(p, graph_t);
+        print_predecessors_rec(p, graph_t, seen);
     }
 }
 
 // O(V + E)
 void print_predecessors(int cur, const vector<vector<int>>& graph_t){
     printf("Minimum set with at least one fault cause: ");
-    print_predecessors_rec(cur, graph_t);
+
+    // count each predecessor only once
+    vector<bool> seen(graph_t.size(), false);
+
+    print_predecessors_rec(cur, graph_t, seen);
     printf("\n");
 }
