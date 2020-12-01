@@ -98,4 +98,5 @@ void print_predecessors_rec(int cur, const vector<vector<int>>& graph_t){
 void print_predecessors(int cur, const vector<vector<int>>& graph_t){
     printf("Minimum set with at least one fault cause: ");
     print_predecessors_rec(cur, graph_t);
+    printf("\n");
 }
