@@ -5,7 +5,7 @@
 
 #include "io.cpp"
 
-void remove_successor_alarm_rec(int cur, const vector<vector<int>>& graph, unordered_set<int>& alarms_r, vector<bool>& seen, vector<int> to_erase){
+void remove_successor_alarm_rec(int cur, const vector<vector<int>>& graph, unordered_set<int>& alarms_r, vector<bool>& seen, vector<int>& to_erase){
 
 	if(seen[cur]) return;
 	seen[cur] = true;
