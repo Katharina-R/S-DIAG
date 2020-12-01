@@ -28,7 +28,7 @@ bool valid_input(const vector<vector<int>>& graph, const unordered_set<int> alar
 		return false;
 	}
 	if(alarms_r.empty()){
-		printf("No ringing alarms. There is nothing to do.");
+		printf("No ringing alarms. There is nothing to do.\n");
 		return false;
 	}
 
