@@ -69,6 +69,12 @@ void print_alarms(string alarm_type, const unordered_set<int>& alarms){
 	printf("\n");
 }
 
+void print_all(vector<vector<int>> graph, unordered_set<int> alarms_r, unordered_set<int> alarms_s){
+    print_graph(graph);
+    print_alarms("ringing", alarms_r);
+    print_alarms("silent", alarms_s);
+}
+
 // O(R) <= O(A)
 void print_number_of_result(const vector<int>& result){
 

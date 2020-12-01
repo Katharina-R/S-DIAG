@@ -48,6 +48,8 @@ int main(){
 
 	// read in the graph & the alarms
 	auto[graph, alarms_r, alarms_s] = read_input();
+	printf("INPUT\n");
+	print_all(graph, alarms_r, alarms_s);
 
 	// validate input
 	if(!valid_input(graph, alarms_r, alarms_s)){
@@ -57,7 +59,8 @@ int main(){
     // find & compress SCC
     auto id_new = tarjans_SCC(graph);
     compress_SCC(graph, id_new, alarms_r, alarms_s);
-    print_graph(graph);
+    printf("AFTER SCC COMPRESSION\n");
+	print_all(graph, alarms_r, alarms_s);
 
 	// find minimum set S which contains at least one failure source
 	s_diag(graph, alarms_r, alarms_s);
