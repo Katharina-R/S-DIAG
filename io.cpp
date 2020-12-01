@@ -50,8 +50,7 @@ tuple<vector<vector<int>>, unordered_set<int>, unordered_set<int>> read_input(){
 
 // O(V + E)
 void print_graph(const vector<vector<int>>& graph){
-    printf("number of vertices: %ld\n", graph.size() - 1);
-    printf("graph: \n");
+    printf("edges: \n");
     for(int u = 1; u < graph.size(); u++){
         for(int v : graph[u]){
             printf("%d -> %d, ", u, v);
