@@ -82,6 +82,7 @@ void remove_predecessors_silent_alarm(vector<vector<int>>& graph, const vector<v
 }
 
 void dfs_tree_embedding_rec(int a, int cur, const vector<vector<int>>& graph, vector<vector<int>>& graph_e, vector<int>& seen_by){
+	printf("a: %d, cur: %d, seen_by[%d]: %d\n", a, cur, cur, seen_by[cur]);
 
 	seen_by[cur] = a;
 
@@ -172,9 +173,9 @@ void s_diag(vector<vector<int>>& graph, unordered_set<int>& alarms_r, const unor
 	graph_t = transpose(graph);
 
 	// depth-first search tree embedding
-	graph_t = dfs_tree_embedding(graph_t, alarms_r);
-	printf("AFTER EMBEDDING\n");
-	print_all(transpose(graph_t), alarms_r, alarms_s);
+	// graph_t = dfs_tree_embedding(graph_t, alarms_r);
+	// printf("AFTER EMBEDDING\n");
+	// print_all(transpose(graph_t), alarms_r, alarms_s);
 
 	// find minimum set S such that S contains at least one failure source
 	find_set_S(graph_t, alarms_r);
