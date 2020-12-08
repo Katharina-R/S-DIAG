@@ -81,20 +81,6 @@ void remove_predecessors_silent_alarm(vector<vector<int>>& graph, const vector<v
 	}
 }
 
-// returns: the number of predecessors
-int get_num_pred(int cur, const vector<vector<int>>& graph_t, vector<bool>& seen){
-
-	if(seen[cur]) return 0;
-	seen[cur] = true;
-
-	// count all predecessors
-	int num_pred = 1;
-	for(int p : graph_t[cur]){
-		num_pred += get_num_pred(p, graph_t, seen);
-	}
-	return num_pred;
-}
-
 void dfs_tree_embedding_rec(int a, int cur, const vector<vector<int>>& graph, vector<vector<int>>& graph_e, vector<int>& seen_by){
 
 	seen_by[cur] = a;
@@ -131,18 +117,30 @@ vector<vector<int>> dfs_tree_embedding(const vector<vector<int>>& graph, const u
 	return graph_e;
 }
 
+// returns: the number of predecessors
+int get_num_pred(int a, int cur, const vector<vector<int>>& graph_t, vector<int>& seen){
+
+	if(seen[cur] == a) return 0;
+	seen[cur] = a;
+
+	// count all predecessors
+	int num_pred = 1;
+	for(int v : graph_t[cur]){
+		num_pred += get_num_pred(a, v, graph_t, seen);
+	}
+	return num_pred;
+}
+
 void find_set_S(const vector<vector<int>>& graph_t, const unordered_set<int>& alarms_r){
 
 	int min_pred_alarm = 0;
 	int min_num_pred = graph_t.size();
 
 	// find the ringing alarm with the minimum number of predecessors
-	int num_pred;
+	vector<int> seen(graph_t.size(), 0);
+	
 	for(int a : alarms_r){
-		// count each predecessor once
-		vector<bool> seen(graph_t.size(), false);
-
-		num_pred = get_num_pred(a, graph_t, seen);
+		int num_pred = get_num_pred(a, a, graph_t, seen);
 		printf("num_pred of %d: %d\n", a, num_pred);
 		if(num_pred < min_num_pred){
 			min_pred_alarm = a;
