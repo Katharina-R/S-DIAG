@@ -59,14 +59,17 @@ void print_graph(const vector<vector<int>>& graph){
 
 // O(A)
 void print_alarms(const unordered_set<int>& alarms_r, const unordered_set<int>& alarms_s){
-	printf("\nringing alarms: ");
+	printf("ringing alarms: ");
 	for(int a : alarms_r){
 		printf("%d, ", a);
 	}
-	printf("\nsilent alarms: ");
+    printf("\n");
+
+	printf("silent alarms: ");
     for(int a : alarms_s){
         printf("%d, ", a);
     }
+    printf("\n");
 }
 
 void print_alarms(string alarm_type, const unordered_set<int>& alarms_r){

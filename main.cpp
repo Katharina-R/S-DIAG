@@ -38,7 +38,7 @@ int main(){
 				alarms_s.insert(a);
 			}
 		}
-		printf("INPUT ALARMS: ");
+		printf("INPUT ALARMS:");
 		print_alarms(alarms_r, alarms_s);
 
 		// find minimum set S which contains at least one failure source

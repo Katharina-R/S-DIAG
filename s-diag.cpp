@@ -119,8 +119,8 @@ void s_diag(vector<vector<int>>& graph, unordered_set<int>& alarms_r, const unor
 
 	// remove all alarms that have a ringing alarm as predecessor
 	remove_successor_alarm(graph, alarms_r);
-	printf("NO ALARM AFTER ALARM\n");
-	print_all(graph, alarms_r, alarms_s);
+	printf("NO ALARM AFTER ALARM:");
+	print_alarms(alarms_r, alarms_s);
 
 	// create transposed graph (predecessors)
 	vector<vector<int>> graph_t = transpose(graph);
@@ -128,7 +128,7 @@ void s_diag(vector<vector<int>>& graph, unordered_set<int>& alarms_r, const unor
 	// remove all predecessors of silent alarms
 	// traverses 'graph_t', updates 'graph'
 	remove_predecessors_silent_alarm(graph, graph_t, alarms_s);
-	printf("NO SILENT ALARM SUCCESSOR\n");
+	printf("NO SILENT ALARM SUCCESSOR:\n");
 	print_all(graph, alarms_r, alarms_s);
 
 	// update transposed graph
