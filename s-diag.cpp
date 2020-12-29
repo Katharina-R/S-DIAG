@@ -105,7 +105,6 @@ void find_set_S(const vector<vector<int>>& graph_t, const unordered_set<int>& al
 	
 	for(int a : alarms_r){
 		int num_pred = get_num_pred(a, a, graph_t, seen);
-		printf("num_pred of %d: %d\n", a, num_pred);
 		if(num_pred < min_num_pred){
 			min_pred_alarm = a;
 			min_num_pred = num_pred;
