@@ -1,1 +1,1 @@
-# D-FAULTS
+# S-DIAG
