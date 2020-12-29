@@ -7,63 +7,48 @@
 
 using namespace std;
 
-bool can_reach_silent_alarm(int cur, vector<bool>& seen, const vector<vector<int>>& graph, const unordered_set<int> alarms_s){
-	if(seen[cur]) return false;
-	seen[cur] = true;
-
-	if(alarms_s.contains(cur)) return true;
-
-	for(int v : graph[cur]){
-		if(can_reach_silent_alarm(v, seen, graph, alarms_s)){
-			return true;
-		}
-	}
-
-	return false;
-}
-
-bool valid_input(const vector<vector<int>>& graph, const unordered_set<int> alarms_r, const unordered_set<int> alarms_s){
-	if(graph.empty()){
-		printf("The graph has no vertices\n");
-		return false;
-	}
-	if(alarms_r.empty()){
-		printf("No ringing alarms. There is nothing to do.\n");
-		return false;
-	}
-
-	// A ringing alarm may not reach a silent alarm
-	vector<bool> seen(graph.size(), false);
-	for(int a : alarms_r){
-		if(can_reach_silent_alarm(a, seen, graph, alarms_s)){
-			printf("Alarm %d can reach a silent alarm. This is not allowed.\n", a);
-			return false;
-		}
-	}
-
-	return true;
-}
-
 int main(){
 
-	// read in the graph & the alarms
-	auto[graph, alarms_r, alarms_s] = read_input();
-	printf("INPUT\n");
-	print_all(graph, alarms_r, alarms_s);
+	// read graph & compress SCC
+	auto graph = read_graph();
+	printf("INPUT GRAPH: ");
+	print_graph(graph);
+	auto id_new = tarjans_SCC(graph);
+	compress_graph(id_new, graph);
+	printf("COMPRESSED GRAPH: ");
+	print_graph(graph);
 
-	// validate input
-	if(!valid_input(graph, alarms_r, alarms_s)){
-		return 0;
-	}
+	// read alarms
+	auto alarms = read_alarms(false);
 
-    // find & compress SCC
-    auto id_new = tarjans_SCC(graph);
-    compress_SCC(graph, id_new, alarms_r, alarms_s);
-    printf("AFTER SCC COMPRESSION\n");
-	print_all(graph, alarms_r, alarms_s);
+	// S-DIAG
+	unordered_set<int> alarms_r, alarms_s;
+	do {
+		// read ringing alarms
+		alarms_r = read_alarms(true);
+		if(alarms_r.size() < 1){
+			printf("No alarms are ringing. Diagnosis is stopped.\n");
+			break;
+		}
+		
+		// calculate silent alarms
+		alarms_s.clear();
+		for(int a : alarms){
+			if(!alarms_r.contains(a)){
+				alarms_s.insert(a);
+			}
+		}
+		printf("INPUT ALARMS: ");
+		print_alarms(alarms_r, alarms_s);
 
-	// find minimum set S which contains at least one failure source
-	s_diag(graph, alarms_r, alarms_s);
+		// find minimum set S which contains at least one failure source
+		compress_alarms(id_new, alarms_r, alarms_s);
+		printf("ALARMS AFTER COMPRESSION: ");
+		print_alarms(alarms_r, alarms_s);
+		s_diag(graph, alarms_r, alarms_s);
 
+	} while(true);
+
+	// diagnosis finished
     return 0;
 }

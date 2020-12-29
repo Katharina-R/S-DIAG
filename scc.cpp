@@ -91,8 +91,7 @@ void update_alarms(int id_old, int id_new, unordered_set<int>& alarms){
 // keeps the id's of the vertexes, e.g.:
 // {1} -> {1}
 // SCC {1, 2, 3} -> {1} or {2} or {3}
-void compress_SCC(vector<vector<int>>& graph, vector<int>& id_new, unordered_set<int>& alarms_r, unordered_set<int>& alarms_s){
-
+void compress_graph(vector<int>& id_new, vector<vector<int>>& graph){
 	// compressed graph
 	vector<vector<int>> graph_c(graph.size());
 
@@ -101,8 +100,6 @@ void compress_SCC(vector<vector<int>>& graph, vector<int>& id_new, unordered_set
 
 		// change id of current vertex
 		if(u != id_new[u]){
-			update_alarms(u, id_new[u], alarms_r);
-			update_alarms(u, id_new[u], alarms_s);
 			printf("Compressing %d into %d\n", u, id_new[u]);
 		} 
 		for(int v : graph[u]){
@@ -120,4 +117,18 @@ void compress_SCC(vector<vector<int>>& graph, vector<int>& id_new, unordered_set
 		graph_c[i].resize(it_end - graph_c[i].begin());
 		graph[i] = graph_c[i];
 	} 
+}
+
+// O(V)
+void compress_alarms(vector<int>& id_new, unordered_set<int>& alarms_r, unordered_set<int>& alarms_s){
+
+	// compress vertex id's (id -> id_new)
+	for(int u = 1; u < id_new.size(); u++){
+
+		// change id of current vertex
+		if(u != id_new[u]){
+			update_alarms(u, id_new[u], alarms_r);
+			update_alarms(u, id_new[u], alarms_s);
+		} 
+	}
 }

@@ -7,28 +7,9 @@
 
 using namespace std;
 
-// O(A) <= O(V)
-unordered_set<int> read_alarms(string alarm_type){
-    // read the number of ringing alarms
-    int num_alarms, a;
-    printf("Enter the number of %s alarms:\n", alarm_type.c_str());
-    scanf("%d", &num_alarms);
-
-    // read the alarms
-    printf("Enter the ids of the %d %s alarms\n", num_alarms, alarm_type.c_str());
-    unordered_set<int> alarms;
-    for(int i = 1; i <= num_alarms; i++){
-        scanf("%d", &a);
-        alarms.insert(a);
-    }
-
-    return alarms;
-}
-
-// O(V + E + A) = O(V + E)
-tuple<vector<vector<int>>, unordered_set<int>, unordered_set<int>> read_input(){ 
-
-	//read the number of vertices & edges
+// O(V + E)
+vector<vector<int>> read_graph(){
+    //read the number of vertices & edges
     int num_vertices, num_edges;
     printf("Enter the number of vertices:\n");
     scanf("%d", &num_vertices);
@@ -41,11 +22,28 @@ tuple<vector<vector<int>>, unordered_set<int>, unordered_set<int>> read_input(){
     printf("Enter the %d edges of the graph (e.g. 1 2 represents the edge 1 -> 2):\n", num_edges);
     int u, v;
     for(int i = 1; i <= num_edges; i++){
-    	scanf("%d%d", &u, &v);
+        scanf("%d%d", &u, &v);
         graph[u].push_back(v);
     }
 
-    return {graph, read_alarms("ringing"), read_alarms("silent")};
+    return graph;
+}
+
+// O(A) <= O(V)
+unordered_set<int> read_alarms(bool ringing_only){
+    int num_alarms, a;
+    string alarm_type = ringing_only? "ringing alarms" : "alarms";
+    printf("Enter the number of %s:\n", alarm_type.c_str());
+    scanf("%d", &num_alarms);
+
+    unordered_set<int> alarms;
+    printf("Enter the ids of the %s:\n", alarm_type.c_str());
+    for(int i = 1; i <= num_alarms; i++){
+        scanf("%d", &a);
+        alarms.insert(a);
+    }
+
+    return alarms;
 }
 
 // O(V + E)
@@ -60,14 +58,26 @@ void print_graph(const vector<vector<int>>& graph){
 }
 
 // O(A)
-void print_alarms(string alarm_type, const unordered_set<int>& alarms){
-	printf("%s alarms: ", alarm_type.c_str());
-	for(int a : alarms){
+void print_alarms(const unordered_set<int>& alarms_r, const unordered_set<int>& alarms_s){
+	printf("\nringing alarms: ");
+	for(int a : alarms_r){
 		printf("%d, ", a);
 	}
-	printf("\n");
+	printf("\nsilent alarms: ");
+    for(int a : alarms_s){
+        printf("%d, ", a);
+    }
 }
 
+void print_alarms(string alarm_type, const unordered_set<int>& alarms_r){
+    printf("%s alarms: ", alarm_type.c_str());
+    for(int a : alarms_r){
+        printf("%d, ", a);
+    }
+    printf("\n");
+}
+
+// O(V + E + A)
 void print_all(vector<vector<int>> graph, unordered_set<int> alarms_r, unordered_set<int> alarms_s){
     print_graph(graph);
     print_alarms("ringing", alarms_r);
