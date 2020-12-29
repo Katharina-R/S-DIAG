@@ -81,43 +81,6 @@ void remove_predecessors_silent_alarm(vector<vector<int>>& graph, const vector<v
 	}
 }
 
-void dfs_tree_embedding_rec(int a, int cur, const vector<vector<int>>& graph, vector<vector<int>>& graph_e, vector<int>& seen_by){
-	printf("a: %d, cur: %d, seen_by[%d]: %d\n", a, cur, cur, seen_by[cur]);
-
-	seen_by[cur] = a;
-
-	for(int v : graph[cur]){
-
-		// already seen during this dfs
-		if(seen_by[v] == a){
-			continue;
-		}
-
-		// add the edge
-		graph_e[cur].push_back(v);
-
-		// already seen in a previous dfs
-		if(seen_by[v] != 0){
-			continue;
-		}
-
-		// not seen before
-		dfs_tree_embedding_rec(a, v, graph, graph_e, seen_by);
-	}
-}
-
-
-vector<vector<int>> dfs_tree_embedding(const vector<vector<int>>& graph, const unordered_set<int>& alarms_r){
-	vector<vector<int>> graph_e(graph.size());
-	vector<int> seen_by(graph.size(), 0);
-
-	for(int a : alarms_r){
-		dfs_tree_embedding_rec(a, a, graph, graph_e, seen_by);	
-	}
-
-	return graph_e;
-}
-
 // returns: the number of predecessors
 int get_num_pred(int a, int cur, const vector<vector<int>>& graph_t, vector<int>& seen){
 
@@ -171,11 +134,6 @@ void s_diag(vector<vector<int>>& graph, unordered_set<int>& alarms_r, const unor
 
 	// update transposed graph
 	graph_t = transpose(graph);
-
-	// depth-first search tree embedding
-	// graph_t = dfs_tree_embedding(graph_t, alarms_r);
-	// printf("AFTER EMBEDDING\n");
-	// print_all(transpose(graph_t), alarms_r, alarms_s);
 
 	// find minimum set S such that S contains at least one failure source
 	find_set_S(graph_t, alarms_r);
